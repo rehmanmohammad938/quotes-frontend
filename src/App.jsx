@@ -60,7 +60,14 @@ export default function App() {
   // was sending for you all week, now triggered by a button.
   // ----------------------------------------------------------
   async function loadQuotes() {
-
+    try {
+      const response = await fetch(`${API_URL}/api/quotes`);
+      const data = await response.json();
+      console.log(response);
+     setQuotes(data);
+    } catch (error) {
+      console.log("Error loading quotes:", error);
+    }
   }
 
 
@@ -84,7 +91,25 @@ export default function App() {
   // You have to call setQuotes to make the list reflect the change.
   // ----------------------------------------------------------
   async function handleCreate(e) {
-    e.preventDefault()
+    e.preventDefault();
+    try {
+      const response = await fetch (`${API_URL}/api/quotes`, {
+        method: `POST`,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text, author}),
+      });
+
+      const newQuote = await response.json();
+      setQuotes([...quotes, newQuote]);
+
+      setText('');
+      setAuthor('');
+
+    } catch (error) {
+      console.error("Error creatinf quote:", error);
+    }
 
   }
 
@@ -102,7 +127,16 @@ export default function App() {
   //   3. Reset the input: setDeleteId('')
   // ----------------------------------------------------------
   async function handleDelete() {
+    try {
+      await fetch(`${API_URL}/api/quotes/${deleteId}`, {
+        method: `DELETE`,
+      });
+      setQuotes(quotes.filter(quote => quote.id != Number(deleteId)));
 
+      setDeleteId('');
+    } catch (error) {
+      console.error('Error deleting quote:', error);
+    }
   }
 
 
